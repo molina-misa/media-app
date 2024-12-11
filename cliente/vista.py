@@ -9,11 +9,16 @@ def get_movies():
     conn = sqlite3.connect("ddbb/media.db")
     cursor = conn.cursor()
     cursor.execute(
-        "SELECT id, nombre, duracion, plataforma, puntuacion, genero FROM Peliculas;"
+        """
+        SELECT p.ID, p.nombre, p.duracion, pl.Nombre AS plataforma, p.puntuacion, g.Nombre AS genero 
+        FROM peliculas AS p 
+        INNER JOIN genero AS g ON p.genero = g.ID 
+        INNER JOIN plataforma AS pl ON p.plataforma = pl.ID;
+
+        """
     )
     movies = cursor.fetchall()
     conn.close()
-
     return movies
 
 
@@ -21,7 +26,12 @@ def get_series():
     conn = sqlite3.connect("ddbb/media.db")
     cursor = conn.cursor()
     cursor.execute(
-        "SELECT id, nombre, duracion, plataforma, puntuacion, genero FROM Series;"
+        """
+        SELECT s.ID, s.nombre, s.duracion, pl.Nombre AS plataforma, s.puntuacion, g.Nombre AS genero 
+        FROM series AS s
+        INNER JOIN genero AS g ON p.genero = g.ID 
+        INNER JOIN plataforma AS pl ON p.plataforma = pl.ID;
+        """
     )
     series = cursor.fetchall()
     conn.close()
@@ -69,12 +79,12 @@ class Frame(tk.Frame):
     def input_form(self):
         self.nombre = tk.StringVar()
         self.entry_nombre = tk.Entry(self, textvariable=self.nombre)
-        self.entry_nombre.config(width=50)
+        self.entry_nombre.config(width=40)
         self.entry_nombre.grid(row=0, column=1, padx=10, pady=10)
 
         self.duracion = tk.StringVar()
         self.entry_duracion = tk.Entry(self, textvariable=self.duracion)
-        self.entry_duracion.config(width=50)
+        self.entry_duracion.config(width=40)
         self.entry_duracion.grid(row=1, column=1, padx=10, pady=10)
 
         plataformas = listar_plataformas()
@@ -86,14 +96,14 @@ class Frame(tk.Frame):
         self.entry_plataforma = ttk.Combobox(self, state="readonly")
         self.entry_plataforma["values"] = self.plataforma
         self.entry_plataforma.current(0)
-        self.entry_plataforma.config(width=25)
+        self.entry_plataforma.config(width=40)
         self.entry_plataforma.bind("<<ComboboxSelected>>")
         self.entry_plataforma.grid(row=2, column=1, padx=5, pady=5)
 
         self.puntuacion = tk.StringVar()
         self.entry_punutuacion = tk.Entry(self, textvariable=self.puntuacion)
-        self.entry_punutuacion.config(width=50)
-        self.entry_punutuacion.grid(row=3, column=1, padx=5, pady=5)
+        self.entry_punutuacion.config(width=40)
+        self.entry_punutuacion.grid(row=3, column=1, padx=10, pady=10)
 
         generos = listar_generos()
         y = []
@@ -105,7 +115,7 @@ class Frame(tk.Frame):
         self.entry_genero = ttk.Combobox(self, state="readonly")
         self.entry_genero["values"] = self.generos
         self.entry_genero.current(0)
-        self.entry_genero.config(width=25)
+        self.entry_genero.config(width=40)
         self.entry_genero.bind("<<ComboboxSelected>>")
         self.entry_genero.grid(row=4, column=1, padx=5, pady=5)
 
@@ -286,7 +296,7 @@ class Frame(tk.Frame):
             self.habilitar_campos()
             self.nombre.set(self.nombre_item)
             self.duracion.set(self.dura_item)
-            self.plataforma.set(self.plataf_item)
+            self.entry_plataforma.current(self.plataf_item)
             self.puntuacion.set(self.puntua_item)
             self.entry_genero.current(self.generos.index(self.gene_item))
         except:

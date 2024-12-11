@@ -6,6 +6,9 @@ from cliente.vista import Frame, barrita_menu
 def main():
 
     root = tk.Tk()
+    root.title("Tu listado de Películas y Series")
+    root.resizable(False, False)
+    barrita_menu(root)
     app = Frame(root)
     root.mainloop()
 
