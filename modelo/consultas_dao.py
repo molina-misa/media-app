@@ -1,6 +1,6 @@
 from .conecciondb import Conneccion
 
-'''
+
 def crear_tabla():
     conn = Conneccion()
 
@@ -48,10 +48,14 @@ def crear_tabla():
     try:
         conn.cursor.execute(sql1)
         conn.cursor.execute(sql2)
+        conn.cursor.execute(sql3)
+        conn.cursor.execute(sql4)
         conn.cerrar_con()
     except:
         pass
-'''
+
+
+### Metodos para el manejo de la tabla Peliculas
 
 
 class Peliculas:
@@ -66,6 +70,72 @@ class Peliculas:
         return f"Pelicula[{self.nombre},{self.duracion},{self.plataforma},{self.puntuacion},{self.genero}]"
 
 
+def guardar_peli(pelicula):
+    conn = Conneccion()
+
+    sql = f"""
+        INSERT INTO Peliculas(Nombre,Duracion,Plataforma,Puntuacion, Genero)
+        VALUES('{pelicula.nombre}','{pelicula.duracion}','{pelicula.plataforma}','{pelicula.puntuacion}',{pelicula.genero});
+"""
+    try:
+        conn.cursor.execute(sql)
+        conn.cerrar_con()
+    except:
+        pass
+
+
+def get_movies():
+    conn = Conneccion()
+    movies = []
+
+    conn.cursor.execute(
+        """
+        SELECT p.ID, p.nombre, p.duracion, pl.Nombre AS plataforma, p.puntuacion, g.Nombre AS genero 
+        FROM peliculas AS p 
+        INNER JOIN genero AS g ON p.genero = g.ID 
+        INNER JOIN plataforma AS pl ON p.plataforma = pl.ID;
+
+        """
+    )
+    movies = conn.cursor.fetchall()
+    conn.cerrar_con()
+    return movies
+
+
+def editar_peli(pelicula, id):
+    conn = Conneccion()
+
+    sql = f"""
+        UPDATE Peliculas
+        SET Nombre = '{pelicula.nombre}', Duracion = '{pelicula.duracion}', Plataforma = {pelicula.plataforma}, Puntuacion = '{pelicula.puntuacion}', Genero = {pelicula.genero}
+        WHERE ID = {id}
+        ;
+"""
+    try:
+        conn.cursor.execute(sql)
+        conn.cerrar_con()
+    except:
+        pass
+
+
+def borrar_peli(id):
+    conn = Conneccion()
+
+    sql = f"""
+        DELETE FROM Peliculas
+        WHERE ID = {id}
+        ;
+"""
+    try:
+        conn.cursor.execute(sql)
+        conn.cerrar_con()
+    except:
+        pass
+
+
+### Metodos para el manejo de la tabla Series
+
+
 class Series:
     def __init__(self, nombre, duracion, plataforma, puntuacion, genero):
         self.nombre = nombre
@@ -76,20 +146,6 @@ class Series:
 
     def __str__(self):
         return f"Series[{self.nombre},{self.duracion},{self.plataforma},{self.puntuacion},{self.genero}]"
-
-
-def guardar_peli(pelicula):
-    conn = Conneccion()
-
-    sql = f"""
-        INSERT INTO Peliculas(Nombre,Duracion,Plataforma, Puntuacion, Genero)
-        VALUES('{pelicula.nombre}','{pelicula.duracion}','{pelicula.plataforma}','{pelicula.puntuacion}',{pelicula.genero});
-"""
-    try:
-        conn.cursor.execute(sql)
-        conn.cerrar_con()
-    except:
-        pass
 
 
 def guardar_serie(serie):
@@ -106,98 +162,21 @@ def guardar_serie(serie):
         pass
 
 
-###
-
-
-def listar_peli():
+def get_series():
     conn = Conneccion()
-    listar_peliculas = []
+    series = []
 
-    sql = f"""
-        SELECT * FROM Peliculas as p
-        INNER JOIN Genero as g
-        ON p.Genero = g.ID;
-"""
-    try:
-        conn.cursor.execute(sql)
-        listar_peliculas = conn.cursor.fetchall()
-        conn.cerrar_con()
-
-        return listar_peliculas
-    except:
-        pass
-
-
-def listar_serie():
-    conn = Conneccion()
-    listar_series = []
-
-    sql = f"""
-        SELECT * FROM Series as s
-        INNER JOIN Genero as g
-        ON p.Genero = g.ID;
-"""
-    try:
-        conn.cursor.execute(sql)
-        listar_series = conn.cursor.fetchall()
-        conn.cerrar_con()
-
-        return listar_series
-    except:
-        pass
-
-
-def listar_generos():
-    conn = Conneccion()
-    listar_genero = []
-
-    sql = f"""
-        SELECT * FROM Genero;
-"""
-    try:
-        conn.cursor.execute(sql)
-        listar_genero = conn.cursor.fetchall()
-        conn.cerrar_con()
-
-        return listar_genero
-    except:
-        pass
-
-
-def listar_plataformas():
-    conn = Conneccion()
-    listar_plataforma = []
-
-    sql = f"""
-        SELECT * FROM Plataforma;
-    """
-    try:
-        conn.cursor.execute(sql)
-        listar_plataforma = conn.cursor.fetchall()
-        conn.cerrar_con()
-
-        return listar_plataforma
-    except:
-        pass
-
-
-###
-
-
-def editar_peli(pelicula, id):
-    conn = Conneccion()
-
-    sql = f"""
-        UPDATE Peliculas
-        SET Nombre = '{pelicula.nombre}', Duracion = '{pelicula.duracion}', Plataforma = '{pelicula.plataforma}', Puntuacion = '{pelicula.puntuacion}', Genero = {pelicula.genero}
-        WHERE ID = {id}
-        ;
-"""
-    try:
-        conn.cursor.execute(sql)
-        conn.cerrar_con()
-    except:
-        pass
+    conn.cursor.execute(
+        """
+        SELECT s.ID, s.nombre, s.duracion, pl.Nombre AS plataforma, s.puntuacion, g.Nombre AS genero 
+        FROM series AS s
+        INNER JOIN genero AS g ON s.genero = g.ID 
+        INNER JOIN plataforma AS pl ON s.plataforma = pl.ID;
+        """
+    )
+    series = conn.cursor.fetchall()
+    conn.cerrar_con()
+    return series
 
 
 def editar_serie(serie, id):
@@ -205,25 +184,7 @@ def editar_serie(serie, id):
 
     sql = f"""
         UPDATE Series
-        SET Nombre = '{serie.nombre}', Duracion = '{serie.duracion}', Plataforma = '{serie.plataforma}', Puntuacion = '{serie.puntuacion}', Genero = {serie.genero}
-        WHERE ID = {id}
-        ;
-"""
-    try:
-        conn.cursor.execute(sql)
-        conn.cerrar_con()
-    except:
-        pass
-
-
-###
-
-
-def borrar_peli(id):
-    conn = Conneccion()
-
-    sql = f"""
-        DELETE FROM Peliculas
+        SET Nombre = '{serie.nombre}', Duracion = '{serie.duracion}', Plataforma = {serie.plataforma}, Puntuacion = '{serie.puntuacion}', Genero = {serie.genero}
         WHERE ID = {id}
         ;
 """
@@ -245,5 +206,45 @@ def borrar_serie(id):
     try:
         conn.cursor.execute(sql)
         conn.cerrar_con()
+    except:
+        pass
+
+
+### Metodos para mostrar la tabla generos y plataformas
+
+
+def listar_generos():
+    conn = Conneccion()
+    listar_genero = []
+
+    sql = f"""
+        SELECT * FROM Genero ORDER BY ID;
+"""
+    try:
+        conn.cursor.execute(sql)
+        generos = conn.cursor.fetchall()
+        conn.cerrar_con()
+
+        for genero in generos:
+            listar_genero.append(genero[1])
+
+        return listar_genero
+    except:
+        pass
+
+
+def listar_plataformas():
+    conn = Conneccion()
+    listar_plataforma = []
+
+    sql = f"""
+        SELECT * FROM Plataforma ORDER BY ID;
+    """
+    try:
+        conn.cursor.execute(sql)
+        listar_plataforma = conn.cursor.fetchall()
+        conn.cerrar_con()
+
+        return listar_plataforma
     except:
         pass

@@ -1,41 +1,20 @@
 import sqlite3
 import tkinter as tk
 from tkinter import ttk
-import tkinter.font as font
-from modelo.consultas_dao import *
-
-
-def get_movies():
-    conn = sqlite3.connect("ddbb/media.db")
-    cursor = conn.cursor()
-    cursor.execute(
-        """
-        SELECT p.ID, p.nombre, p.duracion, pl.Nombre AS plataforma, p.puntuacion, g.Nombre AS genero 
-        FROM peliculas AS p 
-        INNER JOIN genero AS g ON p.genero = g.ID 
-        INNER JOIN plataforma AS pl ON p.plataforma = pl.ID;
-
-        """
-    )
-    movies = cursor.fetchall()
-    conn.close()
-    return movies
-
-
-def get_series():
-    conn = sqlite3.connect("ddbb/media.db")
-    cursor = conn.cursor()
-    cursor.execute(
-        """
-        SELECT s.ID, s.nombre, s.duracion, pl.Nombre AS plataforma, s.puntuacion, g.Nombre AS genero 
-        FROM series AS s
-        INNER JOIN genero AS g ON p.genero = g.ID 
-        INNER JOIN plataforma AS pl ON p.plataforma = pl.ID;
-        """
-    )
-    series = cursor.fetchall()
-    conn.close()
-    return series
+from modelo.consultas_dao import (
+    Peliculas,
+    Series,
+    guardar_peli,
+    guardar_serie,
+    editar_peli,
+    editar_serie,
+    listar_generos,
+    listar_plataformas,
+    borrar_peli,
+    borrar_serie,
+    get_movies,
+    get_series,
+)
 
 
 class Frame(tk.Frame):
@@ -170,7 +149,7 @@ class Frame(tk.Frame):
             if self.id_item is None:
                 guardar_peli(item)
             else:
-                editar_peli(item, int(self.id_peli))
+                editar_peli(item, int(self.id_item))
 
         elif self.tipo == "series":
             item = Series(
@@ -239,10 +218,11 @@ class Frame(tk.Frame):
         self.mostrar_tabla()
 
     def mostrar_tabla(self):
+        self.lista_p.reverse()
         self.tabla = ttk.Treeview(
             self, columns=("Nombre", "Duración", "Plataforma", "Puntuación", "Genero")
         )
-        self.tabla.grid(row=6, column=0, columnspan=4, sticky="nse")
+        self.tabla.grid(row=6, column=0, columnspan=4, sticky="nsew")
 
         self.scroll = ttk.Scrollbar(self, orient="vertical", command=self.tabla.yview)
         self.scroll.grid(row=6, column=4, sticky="nse")
@@ -296,7 +276,7 @@ class Frame(tk.Frame):
             self.habilitar_campos()
             self.nombre.set(self.nombre_item)
             self.duracion.set(self.dura_item)
-            self.entry_plataforma.current(self.plataf_item)
+            self.entry_plataforma.current(self.plataforma.index(self.plataf_item))
             self.puntuacion.set(self.puntua_item)
             self.entry_genero.current(self.generos.index(self.gene_item))
         except:
@@ -305,7 +285,10 @@ class Frame(tk.Frame):
     def eliminar_regristro(self):
         self.id_item = self.tabla.item(self.tabla.selection())["text"]
 
-        borrar_peli(int(self.id_item))
+        if self.tipo == "peliculas":
+            borrar_peli(int(self.id_item))
+        elif self.tipo == "series":
+            borrar_serie(int(self.id_item))
 
         self.mostrar_tabla()
 
