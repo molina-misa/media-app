@@ -75,7 +75,7 @@ def guardar_peli(pelicula):
 
     sql = f"""
         INSERT INTO Peliculas(Nombre,Duracion,Plataforma,Puntuacion, Genero)
-        VALUES('{pelicula.nombre}','{pelicula.duracion}','{pelicula.plataforma}','{pelicula.puntuacion}',{pelicula.genero});
+        VALUES('{pelicula.nombre}','{pelicula.duracion}',{pelicula.plataforma},'{pelicula.puntuacion}',{pelicula.genero});
 """
     try:
         conn.cursor.execute(sql)
@@ -153,7 +153,7 @@ def guardar_serie(serie):
 
     sql = f"""
         INSERT INTO Series(Nombre,Duracion,Plataforma, Puntuacion, Genero)
-        VALUES('{serie.nombre}','{serie.duracion}','{serie.plataforma}','{serie.puntuacion}',{serie.genero});
+        VALUES('{serie.nombre}','{serie.duracion}',{serie.plataforma},'{serie.puntuacion}',{serie.genero});
 """
     try:
         conn.cursor.execute(sql)
@@ -222,11 +222,8 @@ def listar_generos():
 """
     try:
         conn.cursor.execute(sql)
-        generos = conn.cursor.fetchall()
+        listar_genero = conn.cursor.fetchall()
         conn.cerrar_con()
-
-        for genero in generos:
-            listar_genero.append(genero[1])
 
         return listar_genero
     except:

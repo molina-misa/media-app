@@ -67,11 +67,11 @@ class Frame(tk.Frame):
         self.entry_duracion.grid(row=1, column=1, padx=10, pady=10)
 
         plataformas = listar_plataformas()
-        lista_plataformas = ["Seleccione Uno"]
+        lista_plataformas = []
         if plataformas:
             for p in plataformas:
                 lista_plataformas.append(p[1])
-        self.plataforma = lista_plataformas
+        self.plataforma = ["Seleccione Uno"] + lista_plataformas
         self.entry_plataforma = ttk.Combobox(self, state="readonly")
         self.entry_plataforma["values"] = self.plataforma
         self.entry_plataforma.current(0)
@@ -85,12 +85,11 @@ class Frame(tk.Frame):
         self.entry_punutuacion.grid(row=3, column=1, padx=10, pady=10)
 
         generos = listar_generos()
-        y = []
+        lista_generos = []
         if generos:
             for i in generos:
-                y.append(i[1])
-
-        self.generos = ["Selecione Uno"] + y
+                lista_generos.append(i[1])
+        self.generos = ["Selecione Uno"] + lista_generos
         self.entry_genero = ttk.Combobox(self, state="readonly")
         self.entry_genero["values"] = self.generos
         self.entry_genero.current(0)
@@ -138,13 +137,23 @@ class Frame(tk.Frame):
         self.btn_cancel.grid(row=5, column=2, padx=10, pady=10)
 
     def guardar_campos(self):
+        plataforma_seleccionada = self.entry_plataforma.get()
+        genero_seleccionado = self.entry_genero.get()
+
+        id_plataforma = self.plataforma.index(plataforma_seleccionada) - 1
+        try:
+            id_genero = self.generos.index(genero_seleccionado) - 1
+        except:
+            print(f"Error: '{genero_seleccionado}' no está en la lista de géneros.")
+            id_genero = None
+
         if self.tipo == "peliculas":
             item = Peliculas(
                 self.nombre.get(),
                 self.duracion.get(),
-                self.entry_plataforma.current(),
+                id_plataforma,
                 self.puntuacion.get(),
-                self.entry_genero.current(),
+                id_genero,
             )
             if self.id_item is None:
                 guardar_peli(item)
@@ -155,9 +164,9 @@ class Frame(tk.Frame):
             item = Series(
                 self.nombre.get(),
                 self.duracion.get(),
-                self.entry_plataforma.current(),
+                id_plataforma,
                 self.puntuacion.get(),
-                self.entry_genero.current(),
+                id_genero,
             )
             if self.id_item is None:
                 guardar_serie(item)
@@ -276,9 +285,9 @@ class Frame(tk.Frame):
             self.habilitar_campos()
             self.nombre.set(self.nombre_item)
             self.duracion.set(self.dura_item)
-            self.entry_plataforma.current(self.plataforma.index(self.plataf_item))
+            self.entry_plataforma.set(self.plataf_item)
             self.puntuacion.set(self.puntua_item)
-            self.entry_genero.current(self.generos.index(self.gene_item))
+            self.entry_genero.set(self.gene_item)
         except:
             pass
 

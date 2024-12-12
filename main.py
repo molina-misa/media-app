@@ -7,7 +7,7 @@ def main():
 
     root = tk.Tk()
     root.title("Tu listado de Películas y Series")
-    root.resizable(False, False)
+    root.resizable(0, 0)
     barrita_menu(root)
     app = Frame(root)
     root.mainloop()
